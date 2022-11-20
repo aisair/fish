@@ -21,10 +21,10 @@ function ytdlwav --description "Downloads file using yt-dlp then converts to AAC
     end
     
     if set -q _flag_h
-        echo "ytdl-ffmpeg-wav Help"
+        echo "ytdlwav Help"
 	echo "Downloads file using yt-dlp then converts to WAV using ffmpeg"
 	echo "Usage:"
-	echo "ytdl-ffmpeg-wav [-hk] target_url"
+	echo "ytdlwav [-hk] target_url"
 	echo -e \n"-h or --help: prints this help sheet"
 	echo "-k or --keep: keeps all intermediary files"
 	return
