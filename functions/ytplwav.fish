@@ -11,7 +11,7 @@ function ytplwav
     end
 
     if set -q _flag_h
-        builtin echo "ytplwav Help\nParses YT playlist then sends to ytdlwav\nUsage:\nytdlwav [-h] target_url\n-h or --help: prints this help sheet"
+        builtin printf '%s\n' "ytplwav Help" "Parses YT playlist then sends to ytdlwav" "Usage:" "ytdlwav [-h] target_url" "-h or --help: prints this help sheet"
         return
     end
 
