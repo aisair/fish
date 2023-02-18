@@ -1,4 +1,5 @@
 #! /usr/bin/env fish
+# this was a separate script that added video metadata before before it was implemented into the kpdl function
 
 mkdir metadatad
 for x in *.m4v

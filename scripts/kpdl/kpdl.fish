@@ -1,4 +1,5 @@
 #! /usr/bin/env fish
+# this was the old script version of kpdl, now obsolete, use the kpdl function instead
 
 if not count $argv > /dev/null
 	echo 'you forgor the playlist link 💀'

@@ -1,6 +1,6 @@
 #! /usr/bin/env fish
-# this was an older version of the kpdl that took a parsed input file with the video ids
-# kpdl.fish can parse the given playlist link and also download them, making this obsolete
+# this was an older version of the kpdl idea that took a parsed input file with the video ids
+# the kpdl function can parse the given playlist link and also download them, making this obsolete
 
 if not count $argv > /dev/null
 	echo 'you forgor the playlist file 💀'
