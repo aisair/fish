@@ -4,32 +4,31 @@ function kpdl --description "Fetches kaltura playlist information with jq and do
         return 1
     end
 
-    argparse "h/help" "m/metadata" -- $argv
+    argparse "m/metadata" -- $argv
     or begin
         builtin echo "argument parsing failed!"
         return 1
     end
 
-    set json (curl $argv[1] | string match --regex --groups-only '({"playlistContent".+}),')
+    set json (curl --silent $argv[1] | string match --regex --groups-only '({"playlistContent".+}),')
     set ids (echo $json | jq --raw-output '.playlistContent' | string split ",")
     set name (echo $json | jq --raw-output '.name')
 
-    echo "found $(count $ids) video ids, downloading...(this may take a while)"
+    echo "downloading $name (found $(count $ids) video ids, this may take a while)"
+    mkdir -p $name
+    set folder (path resolve ./$name)
     for x in $ids
-        set link "https://mediaspace.illinois.edu/media/t/$x"
-        yt-dlp --ignore-config --quiet $link
+        set link "$(string split -f1,3 -m3 '/' $argv[1] | string join '//')/media/t/$x"
+        # set -a titles (yt-dlp --ignore-config --quiet --print title $link) # debug
+        set -a titles (yt-dlp --ignore-config --quiet --no-warnings --no-simulate --paths $folder --print title $link)
     end
 
-    # this was here for exporting to metadataify.fish
-    # if set -q _flag_e
-    #     echo $test | jq -r '.name' > pltitle.txt
-    # end
-
     if set -q _flag_m
-        mkdir metadatad
-        for x in *.m4v
-            set data (string match -r 'Module ([\d\.]+) - (.+) \[' $x)
-            ffmpeg -i $x -codec copy -map_metadata 0 -metadata episode_sort=$data[2] -metadata title=$data[3] -metadata season_number=1 -metadata show="MATH 257 Lecture Videos" "./metadatad/$x"
+        set files (path resolve $folder/*)
+        builtin echo "applying metadata to files"
+        for i in (seq (count $files))
+            set x $files[$i]
+            ffmpeg -loglevel error -i $x -codec copy -map_metadata 0 -metadata season_number=1 -metadata episode_sort=$i -metadata title=$titles[$i] -metadata show=$name "$folder/$titles[$i]$(path extension $x)"
         end
     end
 
