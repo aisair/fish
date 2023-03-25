@@ -6,13 +6,16 @@ function toalac -d "converts file/directory of audio files to ALAC"
         return 1
     end
     argparse "h/help" "f/folder=" "d/delete" "p/preserve" -- $argv
-    or return
+    or begin
+        builtin echo 'unknown argument, check your args'
+        return 1
+    end
 
     set PICARD_EXECUTABLE "open -a MusicBrainz\ Picard"
     if type -q trash
         set TRASH_EXECUTABLE 'trash -F'
     else
-        set TRASH_EXECUTABLE rm
+        set TRASH_EXECUTABLE 'rm'
     end
 
     if set -q _flag_h
@@ -23,40 +26,44 @@ function toalac -d "converts file/directory of audio files to ALAC"
     if test -d $argv[1]
         echo 'Input is a directory 📁'
         set FOLDER $argv[1]
-        for x in $argv[1]/*
-            if test -f $x
-                set -a FILE $x
-    end
+        for testfile in $argv[1]/*
+            if test -f $testfile
+                set -a FILE $testfile
+        end
     end
     else if test -f $argv[1]
-        echo 'Input is a file 📄'
-        set FOLDER (dirname $argv[1])
+        builtin echo 'Input is a file 📄'
+        set FOLDER (path dirname $argv[1])
         set -a FILE $argv[1]
     else
-        echo 'Input is ???? 🤔'
+        builtin echo 'Input is ???? 🤔'
         return 1
     end
 
     if set -q _flag_f
         mkdir -p $FOLDER/$_flag_f/
         set FOLDER $FOLDER/$_flag_f
-        echo "putting converted files into (basename $FOLDER)"
+        builtin echo "putting converted files into $(basename $FOLDER)"
     end
 
     set -e mflag
     if not set -q _flag_p
         set mflag "-map_metadata" "-1"
-        echo "clearing metadata from files"
+        builtin echo "clearing metadata from files"
     end
 
-    echo 'converting files to ALAC, this may take a bit'
-    for x in (seq (count $FILE)) # i have no idea how to do it better tbh
-        ffmpeg -q -i "$FILE[$x]" -vn $mflag[1] $mflag[2] -c:a alac $FOLDER/(string split -r -m1 -f1 '.' (basename $FILE[$x])).m4a
+    builtin echo 'converting files to ALAC, this may take a bit'
+    # for x in (seq (count $FILE)) # i have no idea how to do it better tbh
+    #     ffmpeg -q -i "$FILE[$x]" -vn $mflag[1] $mflag[2] -c:a alac $FOLDER/(string split -r -m1 -f1 '.' (basename $FILE[$x])).m4a
+    # end
+    for curr_file in $FILE # i figured out how to do it better 😎
+        ffmpeg -loglevel "error" -i $curr_file -vn $mflag -c:a alac $FOLDER/(path change-extension m4a $curr_file)
     end
+    builtin echo "finished converting to ALAC! 🎉 🐬"
 
     if set -q _flag_d
         eval $TRASH_EXECUTABLE \"$FILE\"
-        echo 'deleted original file(s)'
+        builtin echo 'deleted original file(s)'
     end 
 
     if test (count $FILE) -gt 1
