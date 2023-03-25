@@ -1,8 +1,8 @@
 #!/usr/bin/env fish
 function toalac -d "converts file/directory of audio files to ALAC"
     if not count $argv > /dev/null
-        echo 'you forgor the file/directory 💀'
-        echo 'toalac -h for help sheet ❓'
+        builtin echo 'you forgor the file/directory 💀'
+        builtin echo 'toalac -h for help sheet ❓'
         return 1
     end
     argparse "h/help" "f/folder=" "d/delete" "p/preserve" -- $argv
@@ -43,7 +43,7 @@ function toalac -d "converts file/directory of audio files to ALAC"
     if set -q _flag_f
         mkdir -p $FOLDER/$_flag_f/
         set FOLDER $FOLDER/$_flag_f
-        builtin echo "putting converted files into $(basename $FOLDER)"
+        builtin echo "putting converted files into $(path basename $FOLDER)"
     end
 
     set -e mflag
@@ -54,7 +54,7 @@ function toalac -d "converts file/directory of audio files to ALAC"
 
     builtin echo 'converting files to ALAC, this may take a bit'
     # for x in (seq (count $FILE)) # i have no idea how to do it better tbh
-    #     ffmpeg -q -i "$FILE[$x]" -vn $mflag[1] $mflag[2] -c:a alac $FOLDER/(string split -r -m1 -f1 '.' (basename $FILE[$x])).m4a
+    #     ffmpeg -q -i "$FILE[$x]" -vn $mflag[1] $mflag[2] -c:a alac $FOLDER/(string split -r -m1 -f1 '.' (path basename $FILE[$x])).m4a
     # end
     for curr_file in $FILE # i figured out how to do it better 😎
         ffmpeg -loglevel "error" -i $curr_file -vn $mflag -c:a alac $FOLDER/(path change-extension m4a $curr_file)
@@ -69,6 +69,6 @@ function toalac -d "converts file/directory of audio files to ALAC"
     if test (count $FILE) -gt 1
         eval $PICARD_EXECUTABLE \"$FOLDER\"
     else
-        eval $PICARD_EXECUTABLE \"$FOLDER/(string split -r -m1 -f1 '.' (basename $FILE)).m4a\"
+        eval $PICARD_EXECUTABLE \"$FOLDER/(string split -r -m1 -f1 '.' (path basename $FILE)).m4a\"
     end
 end
