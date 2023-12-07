@@ -53,9 +53,6 @@ function toalac -d "converts file/directory of audio files to ALAC"
     end
 
     builtin echo 'converting files to ALAC, this may take a bit'
-    # for x in (seq (count $FILE)) # i have no idea how to do it better tbh
-    #     ffmpeg -q -i "$FILE[$x]" -vn $mflag[1] $mflag[2] -c:a alac $FOLDER/(string split -r -m1 -f1 '.' (path basename $FILE[$x])).m4a
-    # end
     for curr_file in $FILE # i figured out how to do it better 😎
         ffmpeg -loglevel "error" -i $curr_file -vn $mflag -c:a alac $FOLDER/(path change-extension m4a $curr_file)
     end
